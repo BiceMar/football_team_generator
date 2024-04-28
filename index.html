@@ -3,6 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <title>Generatore di Squadre per Calcetto</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #2a7f62;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #76b5c5;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #569da5;
+        }
+        #listaGiocatori, #squadra1, #squadra2 {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            input, button {
+                width: 100%;
+            }
+        }
+    </style>
     <script>
         var giocatori = [];
 

@@ -1,8 +1,63 @@
-<html>
-    <head>
-        <title>Benvenuto</title>
-    </head>
-    <body>
-        <div align="center">Hello World!</div>
-    </body>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Generatore di Squadre per Calcetto</title>
+    <script>
+        var giocatori = [];
+
+        function aggiungiGiocatore() {
+            var nome = document.getElementById("nome").value;
+            var livello = document.getElementById("livello").value;
+            if (nome !== "" && livello !== "") {
+                giocatori.push({ nome: nome, livello: parseInt(livello) });
+                document.getElementById("nome").value = "";
+                document.getElementById("livello").value = "";
+                visualizzaGiocatori();
+            } else {
+                alert("Inserisci sia il nome che il livello del giocatore!");
+            }
+        }
+
+        function visualizzaGiocatori() {
+            var lista = document.getElementById("listaGiocatori");
+            lista.innerHTML = "";
+            giocatori.forEach(function(giocatore, index) {
+                lista.innerHTML += (index + 1) + ". " + giocatore.nome + " (Livello: " + giocatore.livello + ")" + "<br>";
+            });
+        }
+
+        function generaSquadre() {
+            var team1 = [], team2 = [];
+            // Mescoliamo l'array per rendere la selezione casuale
+            giocatori.sort(() => 0.5 - Math.random());
+
+            // Distribuiamo i giocatori in squadre alternando in base al livello
+            giocatori.forEach((giocatore, index) => {
+                if (index % 2 == 0) {
+                    team1.push(giocatore);
+                } else {
+                    team2.push(giocatore);
+                }
+            });
+
+            // Visualizza le squadre
+            document.getElementById("squadra1").innerHTML = "Squadra 1:<br>" + team1.map(g => g.nome + " (Livello: " + g.livello + ")").join("<br>");
+            document.getElementById("squadra2").innerHTML = "Squadra 2:<br>" + team2.map(g => g.nome + " (Livello: " + g.livello + ")").join("<br>");
+        }
+    </script>
+</head>
+<body>
+    <h1>Generatore di Squadre per Calcetto</h1>
+    <input type="text" id="nome" placeholder="Nome del giocatore">
+    <input type="number" id="livello" placeholder="Livello del giocatore (1-10)">
+    <button onclick="aggiungiGiocatore()">Aggiungi Giocatore</button>
+    <h2>Giocatori Aggiunti:</h2>
+    <div id="listaGiocatori"></div>
+    <button onclick="generaSquadre()">Genera Squadre</button>
+    <h2>Squadra 1:</h2>
+    <div id="squadra1"></div>
+    <h2>Squadra 2:</h2>
+    <div id="squadra2"></div>
+</body>
 </html>

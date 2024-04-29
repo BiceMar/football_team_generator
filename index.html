@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Generatore di Squadre per Calcetto</title>
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -57,60 +59,61 @@
             }
         }
     </style>
-    <script>
-        var giocatori = [];
-
-        function aggiungiGiocatore() {
-            var nome = document.getElementById("nome").value;
-            var livello = document.getElementById("livello").value;
-            if (nome !== "" && livello !== "") {
-                giocatori.push({ nome: nome, livello: parseInt(livello) });
-                document.getElementById("nome").value = "";
-                document.getElementById("livello").value = "";
-                visualizzaGiocatori();
-            } else {
-                alert("Inserisci sia il nome che il livello del giocatore!");
-            }
-        }
-
-        function visualizzaGiocatori() {
-            var lista = document.getElementById("listaGiocatori");
-            lista.innerHTML = "";
-            giocatori.forEach(function(giocatore, index) {
-                var playerElement = document.createElement("div");
-                playerElement.className = "new-player";
-                playerElement.innerHTML = (index + 1) + ". " + giocatore.nome + " (Livello: " + giocatore.livello + ")";
-                lista.appendChild(playerElement);
-                setTimeout(() => playerElement.className = "", 500); // Remove the class after animation
-            });
-        }
-
-        function generaSquadre() {
-            var team1 = [], team2 = [];
-            giocatori.sort(() => 0.5 - Math.random());
-            giocatori.forEach((giocatore, index) => {
-                if (index % 2 == 0) {
-                    team1.push(giocatore);
-                } else {
-                    team2.push(giocatore);
-                }
-            });
-            document.getElementById("squadra1").innerHTML = "Squadra 1:<br>" + team1.map(g => g.nome + " (Livello: " + g.livello + ")").join("<br>");
-            document.getElementById("squadra2").innerHTML = "Squadra 2:<br>" + team2.map(g => g.nome + " (Livello: " + g.livello + ")").join("<br>");
-        }
-    </script>
 </head>
 <body>
     <h1>Generatore di Squadre per Calcetto</h1>
     <input type="text" id="nome" placeholder="Nome del giocatore">
     <input type="number" id="livello" placeholder="Livello del giocatore (1-10)">
-    <button onclick="aggiungiGiocatore()">Aggiungi Giocatore</button>
+    <button onclick="add_player(Element('nome').value, Element('livello').value)">Aggiungi Giocatore</button>
     <h2>Giocatori Aggiunti:</h2>
     <div id="listaGiocatori"></div>
-    <button onclick="generaSquadre()">Genera Squadre</button>
+    <button onclick="sort_players()">Genera Squadre</button>
     <h2>Squadra 1:</h2>
     <div id="squadra1"></div>
     <h2>Squadra 2:</h2>
     <div id="squadra2"></div>
+
+    <py-script>
+        import numpy as np
+        import mip
+
+        players = []
+
+        def add_player(name, level):
+            players.append({'name': name, 'level': int(level)})
+            display_players()
+
+        def display_players():
+            lista = Element('listaGiocatori')
+            lista.clear()
+            for idx, player in enumerate(players):
+                lista += f'<div class="new-player">{idx + 1}. {player["name"]} (Livello: {player["level"]})</div>'
+
+        def sort_players():
+            n = len(players)
+            if n == 0:
+                return
+            model = mip.Model()
+            x = [model.add_var(var_type=mip.BINARY) for _ in range(n)]
+            y = [model.add_var(var_type=mip.BINARY) for _ in range(n)]
+            points = np.array([player['level'] for player in players])
+            names = np.array([player['name'] for player in players])
+
+            model.objective = mip.minimize(mip.xsum(points[i] * x[i] for i in range(n)) - mip.xsum(points[i] * y[i] for i in range(n)))
+            model += mip.xsum(x) >= n // 2
+            model += mip.xsum(y) >= n // 2
+            model += mip.xsum(points[i] * x[i] for i in range(n)) - mip.xsum(points[i] * y[i] for i in range(n)) >= 0
+
+            for i in range(n):
+                model += x[i] + y[i] == 1
+
+            model.optimize()
+
+            team1 = [names[i] for i in range(n) if x[i].x >= 0.99]
+            team2 = [names[i] for i in range(n) if y[i].x >= 0.99]
+
+            Element('squadra1').write(f'Squadra 1:<br>' + '<br>'.join(team1))
+            Element('squadra2').write(f'Squadra 2:<br>' + '<br>'.join(team2))
+    </py-script>
 </body>
 </html>

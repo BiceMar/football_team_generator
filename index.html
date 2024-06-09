@@ -5,6 +5,11 @@
     <title>Generatore di Squadre per Calcetto</title>
     <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
     <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+    <script>
+        window.addEventListener('pyodideLoaded', async () => {
+            await pyodide.loadPackage('numpy');
+        });
+    </script>
     <style>
         body {
             font-family: Arial, sans-serif;
